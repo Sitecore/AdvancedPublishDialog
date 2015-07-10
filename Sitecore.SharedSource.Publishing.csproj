@@ -33,16 +33,13 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ComponentArt.Web.UI">
-      <HintPath>..\..\..\..\Sitecores\6.4\6.4.1\Website\bin\ComponentArt.Web.UI.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\NuGet\Sitecore6.5.0.120706\lib\ComponentArt.Web.UI.dll</HintPath>
     </Reference>
     <Reference Include="Sitecore.Client">
-      <HintPath>bin\Sitecore.Client.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\NuGet\Sitecore6.5.0.120706\lib\Sitecore.Client.dll</HintPath>
     </Reference>
     <Reference Include="Sitecore.Kernel">
-      <HintPath>bin\Sitecore.Kernel.dll</HintPath>
-      <Private>False</Private>
+      <HintPath>..\..\NuGet\Sitecore6.5.0.120706\lib\Sitecore.Kernel.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
