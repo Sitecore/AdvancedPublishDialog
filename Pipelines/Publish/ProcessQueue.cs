@@ -113,7 +113,14 @@
           break;
         }
 
+        if (candidate == null)
+        {
+          continue;
+        }
+
         var result = PublishItemPipeline.Run(this.CreateItemContext(candidate, context));
+        Assert.IsNotNull(result, "result");
+
         if (!this.SkipReferrers(result, context))
         {
           var referredItems = result.ReferredItems;
@@ -186,6 +193,8 @@
     protected virtual void TerminatePublish([NotNull] PublishContext context)
     {
       Assert.ArgumentNotNull(context, "context");
+
+      Log.Info("Terminating publish: " + (context.Job != null ? context.Job.Handle.ToString() : "<unknown>"), this);
 
       this.SetSkipChildren(context);
       context.CustomData["IsPublishCanceled"] = true;
