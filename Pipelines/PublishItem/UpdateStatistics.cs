@@ -1,166 +1,154 @@
-using Sitecore.Data.Items;
-using Sitecore.Diagnostics;
-using Sitecore.Jobs;
-using Sitecore.Publishing;
-using Sitecore.Publishing.Pipelines.Publish;
-using Sitecore.Publishing.Pipelines.PublishItem;
-
 namespace Sitecore.SharedSource.Publishing.Pipelines.PublishItem
 {
-   /// <summary>
-   /// UpdateJobStatus class
-   /// </summary>
-   public class UpdateStatistics : PublishItemProcessor
-   {
-      #region Fields
+  using Sitecore.Diagnostics;
+  using Sitecore.Publishing;
+  using Sitecore.Publishing.Pipelines.PublishItem;
 
-      bool _traceToLog;
+  /// <summary>
+  ///   UpdateJobStatus class
+  /// </summary>
+  [UsedImplicitly]
+  public class UpdateStatistics : PublishItemProcessor
+  {
+    #region Fields
 
-      #endregion
+    #endregion
 
-      #region Public properties
+    #region Public properties
 
-      /// <summary>
-      /// Gets or sets a value indicating whether to trace publishing information for every item to the log.
-      /// </summary>
-      /// <value><c>true</c> if trace to log; otherwise, <c>false</c>.</value>
-      public virtual bool TraceToLog
+    /// <summary>
+    ///   Gets or sets a value indicating whether to trace publishing information for every item to the log.
+    /// </summary>
+    /// <value><c>true</c> if trace to log; otherwise, <c>false</c>.</value>
+    public virtual bool TraceToLog { get; set; }
+
+    #endregion
+
+    #region Public methods
+
+    /// <summary>
+    ///   Processes the specified args.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    public override void Process([NotNull] PublishItemContext context)
+    {
+      Assert.ArgumentNotNull(context, "context");
+
+      this.UpdateContextStatistics(context);
+      this.UpdateJobStatistics(context);
+      this.TraceInformation(context);
+    }
+
+    #endregion
+
+    #region Private methods
+
+    /// <summary>
+    ///   Traces the information.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    private void TraceInformation([NotNull] PublishItemContext context)
+    {
+      Assert.ArgumentNotNull(context, "context");
+
+      if (!this.TraceToLog)
       {
-         get
-         {
-            return _traceToLog;
-         }
-         set
-         {
-            _traceToLog = value;
-         }
+        return;
       }
 
-      #endregion
+      var result = context.Result;
+      var item = context.PublishHelper.GetItemToPublish(context.ItemId);
 
-      #region Public methods
+      var itemName = item != null ? item.Name : "(null)";
+      var itemOperation = result != null ? result.Operation.ToString() : "(null)";
+      var childAction = result != null ? result.ChildAction.ToString() : "(null)";
+      var explanation = result != null && result.Explanation.Length > 0 ? result.Explanation : "(none)";
 
-      /// <summary>
-      /// Processes the specified args.
-      /// </summary>
-      /// <param name="context">The context.</param>
-      public override void Process([NotNull] PublishItemContext context)
+      Log.Info("##Publish Item:         " + itemName + " - " + context.ItemId, this);
+      Log.Info("##Publish Operation:    " + itemOperation, this);
+      Log.Info("##Publish Child Action: " + childAction, this);
+      Log.Info("##Explanation:          " + explanation, this);
+    }
+
+    /// <summary>
+    ///   Updates the publish context.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    private void UpdateContextStatistics([NotNull] PublishItemContext context)
+    {
+      Assert.ArgumentNotNull(context, "context");
+
+      var result = context.Result;
+      var publishContext = context.PublishContext;
+
+      if (result == null || publishContext == null)
       {
-         Assert.ArgumentNotNull(context, "context");
-
-         UpdateContextStatistics(context);
-         UpdateJobStatistics(context);
-         TraceInformation(context);
+        return;
       }
 
-      /// <summary>
-      /// Traces the information.
-      /// </summary>
-      /// <param name="context">The context.</param>
-      void TraceInformation([NotNull] PublishItemContext context)
+      switch (result.Operation)
       {
-         Debug.ArgumentNotNull(context, "context");
+        case PublishOperation.None:
+        case PublishOperation.Skipped:
+          lock (publishContext)
+          {
+            publishContext.Statistics.Skipped++;
+          }
 
-         if (!TraceToLog)
-         {
-            return;
-         }
+          break;
 
-         PublishItemResult result = context.Result;
-         Item item = context.PublishHelper.GetItemToPublish(context.ItemId);
+        case PublishOperation.Created:
+          lock (publishContext)
+          {
+            publishContext.Statistics.Created++;
+          }
 
-         string itemName = (item != null ? item.Name : "(null)");
-         string itemOperation = (result != null ? result.Operation.ToString() : "(null)");
-         string childAction = (result != null ? result.ChildAction.ToString() : "(null)");
-         string explanation = (result != null && result.Explanation.Length > 0 ? result.Explanation : "(none)");
+          break;
 
-         Log.Info("##Publish Item:         " + itemName + " - " + context.ItemId, this);
-         Log.Info("##Publish Operation:    " + itemOperation, this);
-         Log.Info("##Publish Child Action: " + childAction, this);
-         Log.Info("##Explanation:          " + explanation, this);
+        case PublishOperation.Updated:
+          lock (publishContext)
+          {
+            publishContext.Statistics.Updated++;
+          }
+
+          break;
+
+        case PublishOperation.Deleted:
+          lock (publishContext)
+          {
+            publishContext.Statistics.Deleted++;
+          }
+
+          break;
+      }
+    }
+
+    /// <summary>
+    ///   Updates the job statistics.
+    /// </summary>
+    /// <param name="context">The context.</param>
+    private void UpdateJobStatistics([NotNull] PublishItemContext context)
+    {
+      Assert.ArgumentNotNull(context, "context");
+
+      var result = context.Result;
+      if (result == null || result.Operation == PublishOperation.None)
+      {
+        return;
       }
 
-      #endregion
-
-      #region Private methods
-
-      /// <summary>
-      /// Updates the publish context.
-      /// </summary>
-      /// <param name="context">The context.</param>
-      void UpdateContextStatistics([NotNull] PublishItemContext context)
+      var job = context.Job;
+      if (job == null)
       {
-         Debug.ArgumentNotNull(context, "context");
-
-         PublishItemResult result = context.Result;
-         PublishContext publishContext = context.PublishContext;
-
-         if (result == null || publishContext == null)
-         {
-            return;
-         }
-
-         switch (result.Operation)
-         {
-            case PublishOperation.None:
-            case PublishOperation.Skipped:
-               lock (publishContext)
-               {
-                  publishContext.Statistics.Skipped++;
-               }
-               break;
-
-            case PublishOperation.Created:
-               lock (publishContext)
-               {
-                  publishContext.Statistics.Created++;
-               }
-               break;
-
-            case PublishOperation.Updated:
-               lock (publishContext)
-               {
-                  publishContext.Statistics.Updated++;
-               }
-               break;
-
-            case PublishOperation.Deleted:
-               lock (publishContext)
-               {
-                  publishContext.Statistics.Deleted++;
-               }
-               break;
-         }
+        return;
       }
 
-      /// <summary>
-      /// Updates the job statistics.
-      /// </summary>
-      /// <param name="context">The context.</param>
-      void UpdateJobStatistics([NotNull] PublishItemContext context)
+      lock (job)
       {
-         Assert.ArgumentNotNull(context, "context");
-
-         PublishItemResult result = context.Result;
-
-         if (result == null || result.Operation == PublishOperation.None)
-         {
-            return;
-         }
-
-         Job job = context.Job;
-
-         if (job == null)
-         {
-            return;
-         }
-
-         lock (job)
-         {
-            job.Status.Processed++;
-         }
+        job.Status.Processed++;
       }
+    }
 
-      #endregion
-   }
+    #endregion
+  }
 }

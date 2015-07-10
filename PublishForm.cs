@@ -1,13 +1,4 @@
-﻿// --------------------------------------------------------------------------------------------------------------------
-// <copyright file="PublishForm.cs" company="Sitecore">
-//   Sitecore Shared Source license applies to this file.
-// </copyright>
-// <summary>
-//   Represents a PublishForm.cs file.
-// </summary>
-// --------------------------------------------------------------------------------------------------------------------
-
-namespace Sitecore.SharedSource.Publishing
+﻿namespace Sitecore.SharedSource.Publishing
 {
    using System;
    using System.Linq;
@@ -26,12 +17,13 @@ namespace Sitecore.SharedSource.Publishing
    /// <summary>
    /// Class extends standard PublishForm type.
    /// </summary>
+   [UsedImplicitly]
    public class PublishForm : Sitecore.Shell.Applications.Dialogs.Publish.PublishForm
    {
       #region Fields
 
       /// <summary>
-      /// Variables representing UI controls on the wizrd form.
+      /// Variables representing UI controls on the wizard form.
       /// </summary>
       protected Border SmartPublishPane;
       protected Border RepublishPane;
