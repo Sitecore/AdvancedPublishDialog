@@ -1,6 +1,5 @@
 ﻿namespace Sitecore.SharedSource.Publishing
 {
-  using System.Net.Sockets;
   using Sitecore.Data;
   using Sitecore.Diagnostics;
 
@@ -136,6 +135,10 @@
         return ParseId(SmartSetting);
       }
     }
+
+    #endregion
+
+    #region Private methods
 
     [NotNull]
     private static ID ParseId([NotNull] string str)

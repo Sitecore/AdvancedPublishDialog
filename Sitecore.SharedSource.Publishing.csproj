@@ -32,9 +32,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="ComponentArt.Web.UI">
-      <HintPath>..\..\NuGet\Sitecore6.5.0.120706\lib\ComponentArt.Web.UI.dll</HintPath>
-    </Reference>
     <Reference Include="Sitecore.Client">
       <HintPath>..\..\NuGet\Sitecore6.5.0.120706\lib\Sitecore.Client.dll</HintPath>
     </Reference>
@@ -42,13 +39,8 @@
       <HintPath>..\..\NuGet\Sitecore6.5.0.120706\lib\Sitecore.Kernel.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Web" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Classes\PublishJobEntry.cs" />

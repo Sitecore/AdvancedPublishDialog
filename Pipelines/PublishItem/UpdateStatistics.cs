@@ -10,10 +10,6 @@ namespace Sitecore.SharedSource.Publishing.Pipelines.PublishItem
   [UsedImplicitly]
   public class UpdateStatistics : PublishItemProcessor
   {
-    #region Fields
-
-    #endregion
-
     #region Public properties
 
     /// <summary>
