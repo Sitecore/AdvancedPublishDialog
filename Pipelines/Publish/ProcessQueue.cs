@@ -18,6 +18,7 @@
     #region Fields
 
     private readonly AutoResetEvent alldone = new AutoResetEvent(false);
+    private readonly int maxItemsThreshold = Sitecore.Configuration.Settings.GetIntSetting("Publishing.MaxItemsThreshold", 0);
     private readonly int allowedThreads = Sitecore.Configuration.Settings.GetIntSetting("Publishing.MaxConcurrentThreads", Math.Max(Environment.ProcessorCount, 1));
     private int threadCount;
 
@@ -37,7 +38,7 @@
 
       foreach (var enumerable in queue)
       {
-        if (this.CanTerminate(context))
+        if (this.CanTerminate(context) || this.IsThresholdExceeded(context))
         {
           this.TerminatePublish(context);
           break;
@@ -107,7 +108,7 @@
 
       foreach (PublishingCandidate candidate in entries)
       {
-        if (this.CanTerminate(context))
+        if (this.CanTerminate(context) || this.IsThresholdExceeded(context))
         {
           this.TerminatePublish(context);
           break;
@@ -129,7 +130,7 @@
           this.ProcessEntries(referredItems, context);
         }
 
-        if (this.SkipChildren(result, candidate, context))
+        if (this.IsThresholdExceeded(context) || this.SkipChildren(result, candidate, context))
         {
           break;
         }
@@ -174,6 +175,11 @@
           this.ProcessEntries(childEntries, context);
         }
       }
+    }
+
+    protected virtual bool IsThresholdExceeded(PublishContext context)
+    {
+      return maxItemsThreshold > 0 && context.Job.Status.Processed > maxItemsThreshold;
     }
 
     protected virtual void SetSkipChildren([NotNull] PublishContext context)
