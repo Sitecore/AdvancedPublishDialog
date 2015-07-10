@@ -176,7 +176,7 @@
       }
     }
 
-    protected void SetSkipChildren([NotNull] PublishContext context)
+    protected virtual void SetSkipChildren([NotNull] PublishContext context)
     {
       Assert.ArgumentNotNull(context, "context");
 

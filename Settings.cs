@@ -146,7 +146,7 @@
       Assert.ArgumentNotNull(str, "str");
 
       ID id;
-      Assert.IsTrue(!ID.TryParse(str, out id), "The specified ID is not valid: " + str);
+      Assert.IsTrue(ID.TryParse(str, out id), "The specified ID is not valid: " + str);
       Assert.IsNotNull(id, "id");
 
       return id;
